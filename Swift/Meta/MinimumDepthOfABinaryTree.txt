@@ -1,55 +1,24 @@
-//BFS is used as a pattern, Queue is used
-/**
- * Definition for a binary tree node.
- * public class TreeNode {
- *     public var val: Int
- *     public var left: TreeNode?
- *     public var right: TreeNode?
- *     public init() { self.val = 0; self.left = nil; self.right = nil; }
- *     public init(_ val: Int) { self.val = val; self.left = nil; self.right = nil; }
- *     public init(_ val: Int, _ left: TreeNode?, _ right: TreeNode?) {
- *         self.val = val
- *         self.left = left
- *         self.right = right
- *     }
- * }
- */
-
 class Solution {
-    func minDepth(_ root: TreeNode?) -> Int {
-        guard let root else { 
-          return 0
-        }
-        
-        // Initialization
-        var queue: [TreeNode] = [root]
-        var minimumTreeDepth = 0
 
-        //Start BFS Traversal
-        while !queue.isEmpty {
-         minimumTreeDepth += 1 //First Level, there is only root in the beginning
-         let levelSize = queue.count // Meaning there is only 1 node in this level
+    func findDiameter(_ root: TreeNode?) -> Int {
+      var diameter = 0
 
-          //Process the first level
-          for _ in 0..<levelSize {
-            let currentNode = queue.removeFirst()
-            
-            //MARK: -If we remove below we can get the maximumDepthOfABinaryTree
-            if currentNode.left == nil && currentNode.right == nil  {
-              return minimumTreeDepth
-            }
-            
-            if let leftChild = currentNode.left {
-              queue.append(leftChild)
-            }
-
-            if let rightChild = currentNode.right {
-              queue.append(rightChild)
-            }
-
+      func depth(_ currentNode: TreeNode?) -> Int {
+          guard let currentNode = currentNode else {
+              return 0
           }
 
+          let leftDepth = depth(currentNode.left)
+          let rightDepth = depth(currentNode.right)
+
+          diameter = max(diameter, leftDepth + rightDepth)
+
+          return max(leftDepth, rightDepth) + 1
         }
-            return minimumTreeDepth
-        }
+
+        let _ = depth(root)
+        return diameter
+
+    }
+
 }
