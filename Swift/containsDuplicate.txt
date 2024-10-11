@@ -1,0 +1,35 @@
+import XCTest
+
+class Solution {
+  func containsDuplicate(nums: [Int]) -> Bool {
+
+    var uniqueSet = Set<Int>()
+
+    for num in nums {
+      if uniqueSet.contains(num) {
+        return true
+      }
+      uniqueSet.insert(num)
+    }
+
+    return false
+  }
+}
+
+class SolutionTest: XCTestCase {
+
+  let solution = Solution()
+
+  func testArrayWithDuplicates() {
+    // Arange
+    let testArray = [1, 2, 3, 1]
+
+    //Act
+    solution.containsDuplicate(testArray)
+
+    //Assert
+    XCTAssertTrue(solution, "Expected true for array with duplicates")
+
+  }
+
+}
