@@ -1,9 +1,11 @@
+import Foundation
+
 class Solution {
-    func isValid(_ s: String) -> Bool {
+    func isValid(_ str: String) -> Bool {
         var stack: [Character] = []
         let elements: [Character: Character] = [")": "(", "]": "[", "}": "{"]
 
-        for char in s {
+        for char in str {
             // We are checking if the current char is closing
             if let matchingOpen = elements[char] {
                 if stack.isEmpty || stack.last != matchingOpen {
