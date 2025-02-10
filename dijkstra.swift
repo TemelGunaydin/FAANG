@@ -1,6 +1,4 @@
-import Foundation
-
-// 0 Element ile istedigimiz data tipi ile calisabiliriz demek, generic yaptik. Ayrica Equatable ile protocol constraint olarak gecer. Yani 2 deger birbirine esit olmasi yada olmamasi icin bu protocolu conform etmeleri gerekiyor.
+// 0 Element ile istedigimiz data tipi ile calisabiliriz demek, generic yaptik.
 struct Heap<Element> {
     // 1 Heap yapimizi dizi uzerinden kuracagimiz icin altta tanimladik
     private var elements: [Element]
@@ -135,7 +133,7 @@ struct Heap<Element> {
 
 // 0 PriorityQueue yaratiyoruz. Bunun icin Heap kullanacagiz.
 struct PriorityQueue<Element> {
-    // 1 Usste yarattigimiz heap kullaniyoruz. Initialize etmeye gerek yok. Init icinde yapiyoruz
+    // 1 Ustte yarattigimiz heap kullaniyoruz. Initialize etmeye gerek yok. Init icinde yapiyoruz
     private var heap: Heap<Element>
 
     // 2 eger dizi parametre olarak verilmezse empty dizi atiyoruz, sort olarak ise min yada max priority belirlemis oluyoruz.
@@ -152,10 +150,6 @@ struct PriorityQueue<Element> {
         heap.peek()
     }
 
-    var count: Int {
-        heap.count
-    }
-
     // 4 insert etme islemini yapiyoruz ve true donyoruz
     mutating func enqueue(_ element: Element) -> Bool {
         heap.insert(element)
@@ -169,35 +163,55 @@ struct PriorityQueue<Element> {
 }
 
 class Solution {
-    func kClosest(_ points: [[Int]], _ k: Int) -> [[Int]] {
-        // Ustteki PriorityQueue kullaniyoruz, ve alttaki gibi buyuk eleman yukarda olacak sekilde max heap yaratiyoruz.
-        // $0.0 nin anlami queue icine gelen 1.inputun 0.elemani yani distance degeridir.
-        // $1.0 nin anlami queue icine gelen 2.inputun 0.elemani yani distance degeridir.
-        var maxHeap = PriorityQueue<(Int, [Int])>(sort: { $0.0 > $1.0 })
+    // V: Vertex sayisi,adj mevcut graph,S ise baslanacak vertex numarasidir.
+    func dijkstra(_ V: Int, _ adj: [[[Int]]], _ S: Int) -> [Int] {
+        // PQ icindeki deger (weight,node) olarak saklaniyor.
+        var pq = PriorityQueue<(Int, Int)>(sort: { (first: (Int, Int), second: (Int, Int)) -> Bool in
+            return first.0 < second.0
+        })
 
-        for point in points {
-            // Altta  points 2D icinden aldigimiz x,y degerleri ile distance degeri aliyoruz
-            let x = point[0], y = point[1]
-            let distance = x * x + y * y
+        // Her bir vertexe gelmek icin gerekli distance degerleri burada saklanacak. Varsayilan olarak hepsi infinity degeri tasiyacak.
+        var disArray = Array(repeating: Int.max, count: V)
 
-            // distance ve ona karsilik gelen (x,y) degerleri heap icine ekleniyor. Distance degeri buyuk olan hep yukarda olacaktir
-            maxHeap.enqueue((distance, point)) // Insert into max heap
+        // Algoritma geregi basladigimiz vertexe gelmek icin cost degerimiz her zaman 0 dir. Bu sebeple dist[S]= 0 yaptik.
+        disArray[S] = 0
 
-            // Eger heap deki eleman sayisi k dan fazla ise en buyuk olanlari queue icinden dequeue ediyoruz. En buyuk distance degerleri burada
-            // heap icinden silinecektir
-            if maxHeap.count > k {
-                _ = maxHeap.dequeue() // Remove the farthest point if heap exceeds k
+        // PQ icine weight,node degerini atadik
+        pq.enqueue((0, S))
+
+        while !pq.isEmpty {
+            // Min heap kullandigimiz icin alttaki islem sonunda weight degeri en dusuk olan data gelecektir.
+            guard let current = pq.dequeue() else { break }
+
+            // PQ icinde (distance,node) olarak saklandigi icin, 0.deger distance, 1.deger vertex numarasidir.
+            let dis = current.0
+            let node = current.1
+
+            // Yukarda S = 2 oldugu icin 2.node tan itibaren bu vertexe bagli tum edge leri kontrol etmemiz gerekiyor. adj icinde saklanan degerlerde [node,dist] olarak saklaniyor
+            for edge in adj[node] {
+                // loop icindeki her bir edge degeri [1,2], [2,4] gibi degerlere sahip olacaktir
+                let vertex = edge[0] // bagli oldugu vertex
+                let weight = edge[1] // distance degeri
+
+                if dis + weight < disArray[vertex] {
+                    disArray[vertex] = dis + weight
+                    pq.enqueue((disArray[vertex], vertex))
+                }
             }
         }
 
-        // Extract k closest points
-        var result = [[Int]]()
-        // heap icinde eleman kalmayana kadar dequeue ile (distance,[x,y]) degerlerini cikartiyoruz, cikan degerin sadece 1.elemani olan points kismini
-        // result icine append ediyoruz
-        while !maxHeap.isEmpty {
-            result.append(maxHeap.dequeue()!.1) // Extract the points
-        }
-
-        return result
+        return disArray
     }
 }
+
+let sol = Solution()
+let vertexCount = 3
+let startVertex = 2
+let adj = [
+    [[1, 1], [2, 6]],
+    [[2, 3], [0, 1]],
+    [[1, 3], [0, 6]],
+]
+
+let path = sol.dijkstra(vertexCount, adj, startVertex)
+print(path)
